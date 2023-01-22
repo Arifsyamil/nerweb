@@ -18,7 +18,7 @@ st.title("📘 Named Entity Recognition Tagger")
 #Load model
 #Use "roberta-large" based on article
 #Previous use model "bert-base-uncased"
-st.cache(allow_output_mutation=True)
+@st.cache(allow_output_mutation=True)
 def load_model():
     model_name = "roberta-large"
     model = AutoModelForTokenClassification.from_pretrained(model_name)
@@ -58,6 +58,7 @@ def tag_sentence(text:str):
       return df
 
 #Download button
+
 def convert_df(df:pd.DataFrame):
      return df.to_csv(index=False).encode('utf-8')
 
