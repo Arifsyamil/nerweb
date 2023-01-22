@@ -35,14 +35,13 @@ st.title("📘Named Entity Recognition Tagger")
 
 @st.cache(allow_output_mutation=True)
 def load_model():
-
 	model_name = "roberta-large"
-    model = AutoModelForTokenClassification.from_pretrained(model_name)
-    trainer = Trainer(model=model)
+    	model = AutoModelForTokenClassification.from_pretrained(model_name)
+    	trainer = Trainer(model=model)
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    	tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    return trainer, model, tokenizer
+    	return trainer, model, tokenizer
 
 
 id2tag={0: 'O',
