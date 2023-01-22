@@ -7,43 +7,27 @@ import base64
 import uuid
 
 import transformers
-from datasets import Dataset,load_dataset, load_from_disk
+#from datasets import Dataset,load_dataset, load_from_disk
 from transformers import AutoTokenizer, AutoModelForTokenClassification, Trainer
+#Page header, title
+st.set_page_config(page_title="Named Entity Recognition Tagger", page_icon="📘")
+st.title("📘 Named Entity Recognition Tagger")
 
 
-st.set_page_config(
-    page_title="Named Entity Recognition Tagger", page_icon="📘"
-)
-
-
-#@st.cache
-def convert_df(df:pd.DataFrame):
-     return df.to_csv(index=False).encode('utf-8')
-
-#@st.cache
-def convert_json(df:pd.DataFrame):
-    result = df.to_json(orient="index")
-    parsed = json.loads(result)
-    json_string = json.dumps(parsed)
-    #st.json(json_string, expanded=True)
-    return json_string
-
-st.title("📘Named Entity Recognition Tagger")
-
-
-######### App-related functions #########
-
-@st.cache(allow_output_mutation=True)
+#Load model
+#Use "roberta-large" based on article
+#Previous use model "bert-base-uncased"
+st.cache(allow_output_mutation=True)
 def load_model():
-	model_name = "roberta-large"
-    	model = AutoModelForTokenClassification.from_pretrained(model_name)
-    	trainer = Trainer(model=model)
+    model_name = "roberta-large"
+    model = AutoModelForTokenClassification.from_pretrained(model_name)
+    trainer = Trainer(model=model)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    	tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-    	return trainer, model, tokenizer
+    return trainer, model, tokenizer
 
 
+#Tag generation
 id2tag={0: 'O',
         1: 'B-corporation',
         2: 'I-corporation',
@@ -72,14 +56,25 @@ def tag_sentence(text:str):
       df=pd.DataFrame(word_tags, columns=['word', 'tag', 'probability'])
       return df
 
+#Download button
+def convert_df(df:pd.DataFrame):
+     return df.to_csv(index=False).encode('utf-8')
+
+def convert_json(df:pd.DataFrame):
+    result = df.to_json(orient="index")
+    parsed = json.loads(result)
+    json_string = json.dumps(parsed)
+    return json_string
+
+
+#Create form
 with st.form(key='my_form'):
 
     x1 = st.text_input(label='Enter a sentence:', max_chars=250)
-    print(x1)
     submit_button = st.form_submit_button(label='🏷️ Create tags')
 
 if submit_button:
-    if re.sub('\s+','',x1)=='':
+    if re.sub(r'\s+','',x1)=='':
         st.error('Please enter a non-empty sentence.')
 
     elif re.match(r'\A\s*\w+\s*\Z', x1):
@@ -112,12 +107,10 @@ if submit_button:
 
              st.table(results.style.background_gradient(subset=['probability']).format(precision=2))
 
-st.header("")
-st.header("")
-st.header("")
+#Apple announces the new MacBook Air, supercharged by the new ARM-based M2 chip
+#Empire State building is located in New York, a city in United States
+#About model
 with st.expander("ℹ️ - About this app", expanded=True):
-
-
     st.write(
         """     
 -   The **Named Entity Recognition Tagger** app is a tool that performs named entity recognition.
@@ -127,4 +120,3 @@ with st.expander("ℹ️ - About this app", expanded=True):
 -   For more info regarding the data science part, check this [post](https://towardsdatascience.com/named-entity-recognition-with-deep-learning-bert-the-essential-guide-274c6965e2d?sk=c3c3699e329e45a8ed93d286ae04ef10).      
        """
     )
-
